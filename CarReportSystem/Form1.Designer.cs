@@ -56,6 +56,9 @@
             this.btDelet = new System.Windows.Forms.Button();
             this.gbMaker = new System.Windows.Forms.GroupBox();
             this.ofdOpenImage = new System.Windows.Forms.OpenFileDialog();
+            this.btExit = new System.Windows.Forms.Button();
+            this.sfdSaveData = new System.Windows.Forms.SaveFileDialog();
+            this.ofdOpenData = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCarData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
             this.gbMaker.SuspendLayout();
@@ -219,7 +222,7 @@
             this.dgvCarData.Location = new System.Drawing.Point(110, 304);
             this.dgvCarData.Name = "dgvCarData";
             this.dgvCarData.RowTemplate.Height = 21;
-            this.dgvCarData.Size = new System.Drawing.Size(678, 173);
+            this.dgvCarData.Size = new System.Drawing.Size(678, 159);
             this.dgvCarData.TabIndex = 16;
             // 
             // label7
@@ -248,6 +251,7 @@
             this.btOpen.TabIndex = 19;
             this.btOpen.Text = "開く";
             this.btOpen.UseVisualStyleBackColor = true;
+            this.btOpen.Click += new System.EventHandler(this.btOpen_Click);
             // 
             // btSave
             // 
@@ -257,6 +261,7 @@
             this.btSave.TabIndex = 20;
             this.btSave.Text = "保存";
             this.btSave.UseVisualStyleBackColor = true;
+            this.btSave.Click += new System.EventHandler(this.btSave_Click);
             // 
             // btOpenImage
             // 
@@ -327,11 +332,26 @@
             // 
             this.ofdOpenImage.FileName = "openFileDialog1";
             // 
+            // btExit
+            // 
+            this.btExit.Location = new System.Drawing.Point(716, 469);
+            this.btExit.Name = "btExit";
+            this.btExit.Size = new System.Drawing.Size(75, 23);
+            this.btExit.TabIndex = 27;
+            this.btExit.Text = "終了";
+            this.btExit.UseVisualStyleBackColor = true;
+            this.btExit.Click += new System.EventHandler(this.btExit_Click);
+            // 
+            // ofdOpenData
+            // 
+            this.ofdOpenData.FileName = "openFileDialog1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 489);
+            this.ClientSize = new System.Drawing.Size(800, 499);
+            this.Controls.Add(this.btExit);
             this.Controls.Add(this.gbMaker);
             this.Controls.Add(this.btDelet);
             this.Controls.Add(this.btModify);
@@ -394,6 +414,9 @@
         private System.Windows.Forms.Button btDelet;
         private System.Windows.Forms.GroupBox gbMaker;
         private System.Windows.Forms.OpenFileDialog ofdOpenImage;
+        private System.Windows.Forms.Button btExit;
+        private System.Windows.Forms.SaveFileDialog sfdSaveData;
+        private System.Windows.Forms.OpenFileDialog ofdOpenData;
     }
 }
 

@@ -4,7 +4,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Text;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -111,6 +114,61 @@ namespace CarReportSystem
         {
             _cars.RemoveAt(dgvCarData.CurrentRow.Index);
 
+        }
+
+        private void btOpen_Click(object sender, EventArgs e)
+        {
+            //オープンファイルダイアログを表示
+            if (ofdOpenData.ShowDialog() == DialogResult.OK)
+            {
+                using (FileStream fs = new FileStream(ofdOpenData.FileName, FileMode.Open))
+                {
+                    try
+                    {
+                        BinaryFormatter formatter = new BinaryFormatter();
+                        //逆シリアル化して読み込む
+                        _cars = (BindingList<CarReport>)formatter.Deserialize(fs);
+                        //データグリッドビューに再設定
+                        dgvCarData.DataSource = _cars;
+                        //選択されている箇所を各コントロールへ表示
+                        dgvCarData_Click(sender, e);
+
+                    } catch (SerializationException se)
+                    {
+                        Console.WriteLine("Failed to deserialize. Reason: " + se.Message);
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void btSave_Click(object sender, EventArgs e)
+        {
+            //セーブファイルダイアログを表示
+            if (sfdSaveData.ShowDialog() == DialogResult.OK)
+            {
+
+                //ファイルストリームを生成
+                BinaryFormatter formatter = new BinaryFormatter();
+
+                using (FileStream fs = new FileStream(sfdSaveData.FileName, FileMode.Create))
+                {
+                    try
+                    {
+                        //シリアル化して保存
+                        formatter.Serialize(fs, _cars);
+                    } catch (SerializationException se)
+                    {
+                        Console.WriteLine("Failed to serialize. Reason: " + se.Message);
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void btExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
