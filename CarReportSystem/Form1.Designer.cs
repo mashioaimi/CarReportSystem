@@ -218,12 +218,18 @@
             // 
             // dgvCarData
             // 
+            this.dgvCarData.AllowUserToAddRows = false;
+            this.dgvCarData.AllowUserToDeleteRows = false;
             this.dgvCarData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCarData.Location = new System.Drawing.Point(110, 304);
+            this.dgvCarData.Location = new System.Drawing.Point(106, 304);
+            this.dgvCarData.MultiSelect = false;
             this.dgvCarData.Name = "dgvCarData";
+            this.dgvCarData.ReadOnly = true;
             this.dgvCarData.RowTemplate.Height = 21;
-            this.dgvCarData.Size = new System.Drawing.Size(678, 159);
+            this.dgvCarData.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvCarData.Size = new System.Drawing.Size(682, 159);
             this.dgvCarData.TabIndex = 16;
+            this.dgvCarData.Click += new System.EventHandler(this.dgvCarData_Click);
             // 
             // label7
             // 
@@ -291,7 +297,7 @@
             this.btAdd.TabIndex = 23;
             this.btAdd.Text = "追加";
             this.btAdd.UseVisualStyleBackColor = true;
-            this.btAdd.Click += new System.EventHandler(this.btAdd_Click_1);
+            this.btAdd.Click += new System.EventHandler(this.btAdd_Click);
             // 
             // btModify
             // 
@@ -375,6 +381,7 @@
             this.Controls.Add(this.dtCreateTime);
             this.Name = "Form1";
             this.Text = "試乗レポート管理システム";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCarData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).EndInit();
             this.gbMaker.ResumeLayout(false);

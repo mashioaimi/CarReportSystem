@@ -31,20 +31,16 @@ namespace CarReportSystem
             if (rbToyota.Checked == true)
             {
                 return CarReport.CarMaker.トヨタ;
-            }
-            else if(rbNissan.Checked == true)
+            } else if (rbNissan.Checked == true)
             {
                 return CarReport.CarMaker.日産;
-            }
-            else if(rbHonda.Checked == true)
+            } else if (rbHonda.Checked == true)
             {
                 return CarReport.CarMaker.ホンダ;
-            }
-            else if(rbGaisya.Checked == true)
+            } else if (rbGaisya.Checked == true)
             {
                 return CarReport.CarMaker.外車;
-            }
-            else if(rbSonota.Checked == true)
+            } else if (rbSonota.Checked == true)
             {
                 return CarReport.CarMaker.その他;
             }
@@ -73,8 +69,17 @@ namespace CarReportSystem
             tbReport.Text = selectedCar.Report;
         }
 
-        private void btAdd_Click_1(object sender, EventArgs e)
+        private void btAdd_Click(object sender, EventArgs e)
         {
+            if (cbName.Text == "") //(==)→中身の確認
+            {
+                MessageBox.Show("正しい値を入力してください。",
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
             CarReport obj = new CarReport()
             {
                 CreatedDate = dtCreateTime.Value,
@@ -84,13 +89,58 @@ namespace CarReportSystem
                 Report = tbReport.Text,
                 Picture = pbImage.Image
             };
-            _cars.Insert(0, obj);
 
+            setComboBoxAuthor(cbName.Text);
+
+
+
+            _cars.Insert(0, obj); //リストの先頭(インデックス0)へ追加
+            dgvCarData.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            inputItemAllClear();
+
+            buttonClear();
+
+            initButton();
+            dgvCarData.ClearSelection(); //クリックしたときに選択されないようにする
+            dgvCarData.ClearSelection(); //選択行をクリア
+
+        }
+
+        private void inputItemAllClear()
+        {
+            cbName.Text = null;
+            cbCarName.Text = "";
+            MakerSelect();
+            tbReport.Text = "";
+            pbImage.Image = null;
+        }
+
+        private void initButton()
+        {
+            if (_cars.Count <= 0)
+            {
+                btModify.Enabled = false; //初期状態では変更ボタンはマスク
+                btDelet.Enabled = false;
+            } else
+            {
+                btModify.Enabled = true;
+                btDelet.Enabled = true;
+            }
+        }
+
+        private void setComboBoxAuthor(string Name)
+        {
+            if (!cbName.Items.Contains(Name)) //!←否定
+            {
+                //コンボボックスの候補に追加
+                cbName.Items.Add(Name);
+            }
         }
 
         private void btClearImage_Click(object sender, EventArgs e)
         {
-            pbImage.Image = null; //クリックされたらbtImageを何も入っていない状態にする
+
         }
 
         private void btModify_Click(object sender, EventArgs e)
@@ -107,12 +157,23 @@ namespace CarReportSystem
             };
 
             _cars[dgvCarData.CurrentRow.Index] = modify; //格納された行の文字を変更
+            inputItemAllClear();
+        }
 
+        private void buttonClear()
+        {
+            rbToyota.Checked = false;
+            rbNissan.Checked = false;
+            rbHonda.Checked = false;
+            rbSubaru.Checked = false;
+            rbGaisya.Checked = false;
+            rbSonota.Checked = false;
         }
 
         private void btDelet_Click(object sender, EventArgs e)
         {
             _cars.RemoveAt(dgvCarData.CurrentRow.Index);
+            initButton();
 
         }
 
@@ -169,6 +230,11 @@ namespace CarReportSystem
         private void btExit_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            initButton();
         }
     }
 }
