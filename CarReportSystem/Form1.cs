@@ -22,7 +22,7 @@ namespace CarReportSystem
         public Form1()
         {
             InitializeComponent();
-            dgvCarData.DataSource = _cars;
+            //dgvCarData.DataSource = _cars;
         }
 
 
@@ -63,10 +63,12 @@ namespace CarReportSystem
 
         private void dgvCarData_Click(object sender, EventArgs e)
         {
-            CarReport selectedCar = _cars[dgvCarData.CurrentRow.Index];
+            var test = dgvCarData.CurrentRow.Cells[2].Value;
+            /*CarReport selectedCar = _cars[dgvCarData.CurrentRow.Index];
             cbName.Text = selectedCar.Author;
             cbCarName.Text = selectedCar.Name;
             tbReport.Text = selectedCar.Report;
+            */
         }
 
         private void btAdd_Click(object sender, EventArgs e)
@@ -120,11 +122,9 @@ namespace CarReportSystem
         {
             if (_cars.Count <= 0)
             {
-                btModify.Enabled = false; //初期状態では変更ボタンはマスク
                 btDelet.Enabled = false;
             } else
             {
-                btModify.Enabled = true;
                 btDelet.Enabled = true;
             }
         }
@@ -140,24 +140,37 @@ namespace CarReportSystem
 
         private void btClearImage_Click(object sender, EventArgs e)
         {
-
+            if (pbImage.Image == null)
+            {
+                return;
+            } else
+            {
+                pbImage.Image = null;
+            }
         }
 
         private void btModify_Click(object sender, EventArgs e)
         {
-            //変更対象のレコード(オブジェクト)
-            CarReport modify = new CarReport() //中の処理を変更
-            {
-                CreatedDate = dtCreateTime.Value,
-                Author = cbName.Text,
-                Name = cbCarName.Text,
-                Maker = MakerSelect(),
-                Report = tbReport.Text,
-                Picture = pbImage.Image
-            };
+            dgvCarData.CurrentRow.Cells[1].Value = dtCreateTime.Value;
+            dgvCarData.CurrentRow.Cells[2].Value = cbName.Text;
+            dgvCarData.CurrentRow.Cells[3].Value = MakerSelect();
+            dgvCarData.CurrentRow.Cells[4].Value = cbCarName.Text;
+            dgvCarData.CurrentRow.Cells[5].Value = tbReport.Text;
 
-            _cars[dgvCarData.CurrentRow.Index] = modify; //格納された行の文字を変更
-            inputItemAllClear();
+            if (pbImage.Image != null)
+            {
+                dgvCarData.CurrentRow.Cells[6].Value = ImageToByteArray(pbImage.Image);
+            } else
+            {
+                dgvCarData.CurrentRow.Cells[6].Value = null;
+
+            }
+
+
+            //データベース更新（反映）
+            this.Validate();
+            this.carReportBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.infosys202008DataSet);
         }
 
         private void buttonClear()
@@ -180,7 +193,7 @@ namespace CarReportSystem
         private void btOpen_Click(object sender, EventArgs e)
         {
             //オープンファイルダイアログを表示
-            if (ofdOpenData.ShowDialog() == DialogResult.OK)
+            /*if (ofdOpenData.ShowDialog() == DialogResult.OK)
             {
                 using (FileStream fs = new FileStream(ofdOpenData.FileName, FileMode.Open))
                 {
@@ -200,31 +213,20 @@ namespace CarReportSystem
                         throw;
                     }
                 }
-            }
+            }*/
+            this.carReportTableAdapter.Fill(this.infosys202008DataSet.CarReport);
         }
 
         private void btSave_Click(object sender, EventArgs e)
         {
-            //セーブファイルダイアログを表示
-            if (sfdSaveData.ShowDialog() == DialogResult.OK)
-            {
+            dgvCarData.CurrentRow.Cells[2].Value = cbName.Text;
 
-                //ファイルストリームを生成
-                BinaryFormatter formatter = new BinaryFormatter();
+            //データベース反映
+            this.Validate();
+            this.carReportBindingSource.EndEdit();
+            this.carReportTableAdapter.Fill(this.infosys202008DataSet.CarReport);
 
-                using (FileStream fs = new FileStream(sfdSaveData.FileName, FileMode.Create))
-                {
-                    try
-                    {
-                        //シリアル化して保存
-                        formatter.Serialize(fs, _cars);
-                    } catch (SerializationException se)
-                    {
-                        Console.WriteLine("Failed to serialize. Reason: " + se.Message);
-                        throw;
-                    }
-                }
-            }
+
         }
 
         private void btExit_Click(object sender, EventArgs e)
@@ -234,7 +236,108 @@ namespace CarReportSystem
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // TODO: このコード行はデータを 'infosys202008DataSet.CarReport' テーブルに読み込みます。必要に応じて移動、または削除をしてください。
+            dgvCarData.Columns[0].Visible = false; //id非表示にする
             initButton();
+        }
+
+        private void carReportBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            //データベース更新（反映）
+            this.Validate();
+            this.carReportBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.infosys202008DataSet);
+
+        }
+
+        private void carReportBindingNavigatorSaveItem_Click_1(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.carReportBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.infosys202008DataSet);
+
+        }
+
+
+        private void dgvCarData_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+
+                dtCreateTime.Value = (DateTime)dgvCarData.CurrentRow.Cells[1].Value;
+                var Maker = dgvCarData.CurrentRow.Cells[3].Value;
+
+                cbName.Text = dgvCarData.CurrentRow.Cells[2].Value.ToString();
+                cbCarName.Text = dgvCarData.CurrentRow.Cells[4].Value.ToString();
+                tbReport.Text = dgvCarData.CurrentRow.Cells[5].Value.ToString();
+
+                //ラジオボタンの設定
+                setRadioButtonMaker((string)Maker);
+
+                pbImage.Image = ByteArrayToImage((byte[])dgvCarData.CurrentRow.Cells[6].Value);
+
+            }
+            catch (InvalidCastException)
+            {
+                pbImage.Image = null;
+            } 
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void setRadioButtonMaker(string carMaker)
+        {
+            switch (carMaker)
+            {
+                case "トヨタ":
+                    rbToyota.Checked = true;
+                    break;
+
+                case "日産":
+                    rbNissan.Checked = true;
+                    break;
+
+                case "ホンダ":
+                    rbHonda.Checked = true;
+                    break;
+
+                case "スバル":
+                    rbSubaru.Checked = true;
+                    break;
+
+                case "外車":
+                    rbGaisya.Checked = true;
+                    break;
+
+                case "その他":
+                    rbSonota.Checked = true;
+                    break;
+            }
+        }
+
+        // バイト配列をImageオブジェクトに変換
+        public static Image ByteArrayToImage(byte[] byteData)
+        {
+            ImageConverter imgconv = new ImageConverter();
+            Image img = (Image)imgconv.ConvertFrom(byteData);
+            return img;
+        }
+
+        // Imageオブジェクトをバイト配列に変換
+        public static byte[] ImageToByteArray(Image img)
+        {
+            ImageConverter imgconv = new ImageConverter();
+            byte[] byteData = (byte[])imgconv.ConvertTo(img, typeof(byte[]));
+            return byteData;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.carReportTableAdapter.FillByCarName(this.infosys202008DataSet.CarReport,tbSerchCarName.Text);
+            this.carReportTableAdapter.FillByCrenderData(this.infosys202008DataSet.CarReport,dtpSerchCrenderData.Value.ToString());
+            this.carReportTableAdapter.FillByMaker(this.infosys202008DataSet.CarReport, tbSerchMaker.Text);
         }
     }
 }
